@@ -75,45 +75,47 @@
 
     <!-- Results -->
     {% if result %}
-    <div class="mt-5">
-        <h4>Results for Student ID: {{ student_id or 'N/A' }}</h4>
-        <div class="mb-4">
-            <h5>OMR Sheet: {{ omr_file }}</h5>
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5>Latest Evaluation Result</h5>
+        </div>
+        <div class="card-body">
             <table class="table table-bordered">
                 <thead>
                     <tr>
-                        <th>Subject</th>
-                        <th>Score</th>
-                        <th>Total</th>
+                        <th>Date</th>
+                        <th>Student ID</th>
+                        <th>OMR File</th>
+                        <th>Answer Key</th>
+                        <th>Version</th>
+                        <th>Flagged</th>
+                        {% for subj in subjects %}
+                        <th>{{ subj }}</th>
+                        {% endfor %}
+                        <th>Total Score</th>
+                        <th>Total Questions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for subject in subjects %}
                     <tr>
-                        <td>{{ subject }}</td>
-                        <td>{{ result['result'].get(subject, 0) }}</td>
-                        <td>{{ total_per_subject or 20 }}</td> <!-- You can replace 20 with actual per-subject total -->
+                        <td>{{ result.date }}</td>
+                        <td>{{ request.form.get("student_id") }}</td>
+                        <td>{{ request.form.getlist("selected_omr")|join(", ") }}</td>
+                        <td>{{ request.form.get("selected_key") }}</td>
+                        <td>{{ request.form.get("version") }}</td>
+                        <td>{{ "Yes" if request.form.get("flagged") else "No" }}</td>
+                        {% for subj in subjects %}
+                        <td>{{ result.result.get(subj, 0) }}</td>
+                        {% endfor %}
+                        <td>{{ result.total_score }}</td>
+                        <td>{{ result.total_questions }}</td>
                     </tr>
-                    {% endfor %}
                 </tbody>
-                <tfoot>
-                    <tr class="table-info">
-                        <td><b>Overall</b></td>
-                        <td><b>{{ result['total_score'] }}</b></td>
-                        <td><b>{{ result['total_questions'] }}</b></td>
-                    </tr>
-                    <tr>
-                        <td><b>Version</b></td>
-                        <td colspan="2">{{ version or 'N/A' }}</td>
-                    </tr>
-                </tfoot>
             </table>
-            {% if flagged %}
-            <div class="alert alert-warning">This sheet was flagged for manual review.</div>
-            {% endif %}
         </div>
     </div>
     {% endif %}
+
 
 </div>
 {% endblock %}

@@ -23,24 +23,21 @@ def evaluate_results(key, marked):
         "total_score": total_score,
         "total_questions": total_questions
     }
-
-    # save_evaluation(result_data)
-
     return result_data
 
 
-def save_evaluation(result, student_id, version, flagged):
+def save_evaluation(result, student_id, version, flagged, omr_file, key_file):
     file_exists = os.path.isfile(REPORT_FILE)
     with open(REPORT_FILE, mode="a", newline="") as f:
         writer = csv.writer(f)
         
         # Update header to include new fields
         if not file_exists:
-            header = ["Date"] + SUBJECTS + ["Total Score", "Total Questions", "Student ID", "Version", "Flagged"]
+            header = ["Date", "OMR Sheet", "Answer KEY"] + SUBJECTS + ["Total Score", "Total Questions", "Student ID", "Version", "Flagged"]
             writer.writerow(header)
         
         # Flatten row and add new fields at the end
-        row = [result["date"]]
+        row = [result["date"], omr_file, key_file]
         row += [result["result"].get(subj, 0) for subj in SUBJECTS]
         row += [result["total_score"], result["total_questions"]]
         row += [student_id, version, flagged]

@@ -5,7 +5,7 @@ from datetime import datetime
 import pandas as pd
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from omr_utils import  evaluate_results, SUBJECTS, REPORT_FILE,save_evaluation
-from files import process_answer_key, process_omr_sheet
+from files import *
 
 app = Flask(__name__)
 app.secret_key = "secret123"
@@ -69,11 +69,21 @@ def home():
         df = pd.read_csv(REPORT_FILE)
         sheets_evaluated = len(df)
         flagged_count = df["Flagged"].sum() if "Flagged" in df.columns else 0
+
         if not df.empty:
-            last_score = f"{df.iloc[-1]['Overall']}/{df.iloc[-1]['Total']}"
-            top_students = df.sort_values("Overall", ascending=False).head(3)[["student_id","Overall"]].to_dict('records') if "student_id" in df.columns else []
+            # Last evaluated sheet score
+            last_score = f"{df.iloc[-1]['Total Score']}/{df.iloc[-1]['Total Questions']}"
+
+            # Top 3 students
+            if "Student ID" in df.columns and "Total Score" in df.columns:
+                top_students = df.sort_values("Total Score", ascending=False).head(3)[["Student ID","Total Score"]].to_dict('records')
+
+            # Average scores per subject
             for s in SUBJECTS:
-                avg_scores[s] = round(df[s].mean(),2) if s in df.columns else None
+                if s in df.columns:
+                    avg_scores[s] = round(df[s].mean(), 2)
+                else:
+                    avg_scores[s] = None
 
     return render_template("home.html",
         total_answer_keys=total_answer_keys,
@@ -97,7 +107,9 @@ def reports():
         "student_id": request.args.get("student_id", ""),
         "date": request.args.get("date", ""),
         "version": request.args.get("version", ""),
-        "flagged": request.args.get("flagged", "")
+        "flagged": request.args.get("flagged", ""),
+        "omr_file": request.args.get("omr_file", ""),
+        "key_file": request.args.get("key_file", "")
     }
 
     filtered_df = df.copy()
@@ -114,7 +126,14 @@ def reports():
     if filters["flagged"]:
         flagged_val = True if filters["flagged"] == "1" else False
         filtered_df = filtered_df[filtered_df["Flagged"] == flagged_val]
-
+    if filters["omr_file"]:
+        filtered_df = filtered_df[
+            filtered_df["OMR Sheet"].astype(str).str.contains(filters["omr_file"], case=False, na=False)
+        ]
+    if filters["key_file"]:
+        filtered_df = filtered_df[
+            filtered_df["Answer Key"].astype(str).str.contains(filters["key_file"], case=False, na=False)
+        ]
     # Export options
     export_type = request.args.get("export")
     if export_type == "csv":
@@ -157,9 +176,7 @@ def evaluate():
         # Upload answer key
         if "answer_file" in request.files and request.files["answer_file"].filename:
             file = request.files["answer_file"]
-            filepath = os.path.join(ANSWER_FOLDER, file.filename)
-            file.save(filepath)
-            process_answer_key(filepath)
+            split_save_xlsx(file.filename)
             flash("New answer key uploaded!", "success")
             return redirect(url_for("evaluate"))
 
@@ -200,7 +217,7 @@ def evaluate():
                 key_answers = process_answer_key(os.path.join(ANSWER_FOLDER, selected_key))
                 
                 result = evaluate_results(key_answers, marked_answers)
-                save_evaluation(result, student_id, version, flagged)
+                save_evaluation(result, student_id, version, flagged, omr_file, selected_key)
 
     return render_template("evaluate.html",
         existing_keys=existing_keys,

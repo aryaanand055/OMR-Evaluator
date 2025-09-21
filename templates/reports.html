@@ -43,6 +43,8 @@
                 <tr>
                     <th>Student ID</th>
                     <th>Date</th>
+                    <th>OMR Sheet</th>
+                    <th>Answer Key</th>
                     <th>Version</th>
                     {% for subject in subjects %}
                     <th>{{ subject }}</th>
@@ -58,6 +60,8 @@
                 <tr>
                     <td>{{ r.get('Student ID', '-') }}</td>
                     <td>{{ r.get('Date', '-') }}</td>
+                    <td>{{ r.get('OMR Sheet') }}</td>
+                    <td>{{ r.get('Answer KEY') }}</td>
                     <td>{{ r.get('Version', '-') }}</td>
                     {% for subject in subjects %}
                     <td>{{ r.get(subject, 0) }}</td>

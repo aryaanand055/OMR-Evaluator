@@ -142,7 +142,7 @@ def visualize_grid(cropped_img):
         y += rh
     cv2.line(vis, (0, y), (w, y), (255, 0, 0), 1)
 
-    cv2.imwrite("grid_visualization.jpg", vis)
+    # cv2.imwrite("grid_visualization.jpg", vis)
     # cv2.imshow("Grid Visualization", cv2.resize(vis, (600, 900)))
     # print("Saved grid visualization as 'grid_visualization.jpg'")
     # cv2.waitKey(0)
