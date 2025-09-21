@@ -3,52 +3,46 @@ import os
 from datetime import datetime
 import random
 
-SUBJECTS = ["Math", "English", "Science", "Social Studies", "Tamil"]
+SUBJECTS = ["Python", "EDA", "SQL", "POWER BI", "Satistics"]
 REPORT_FILE = "uploads/evaluations.csv"
 
-def process_answer_key(file_path):
-    return "Answer key processed successfully!"
-
-def process_omr_sheet(file_path):
-    return "OMR sheet processed successfully!"
-
-def evaluate_results(answer_key, omr_file):
+def evaluate_results(key, marked):
     results = {}
     total_score = 0
     total_questions = 0
-
-    for subject in SUBJECTS:
-        score = random.randint(10, 20)  # placeholder
-        results[subject] = score
-        total_score += score
-        total_questions += 20
-
-    overall = total_score
+    for i in range(len(key)):
+        for j in range(len(key[i])):
+            if(key[i][j] == marked[i][j]):
+                results[SUBJECTS[i]] = results.get(SUBJECTS[i], 0) + 1
+                total_score += 1
+            total_questions += 1
+   
     result_data = {
-        "omr": omr_file,
-        "answer_key": answer_key,
         "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "subjects": results,
-        "overall": overall,
-        "total": total_questions
+        "result": results,
+        "total_score": total_score,
+        "total_questions": total_questions
     }
 
-    # --- Save to CSV ---
-    save_evaluation(result_data)
+    # save_evaluation(result_data)
 
     return result_data
 
-def save_evaluation(result):
+
+def save_evaluation(result, student_id, version, flagged):
     file_exists = os.path.isfile(REPORT_FILE)
     with open(REPORT_FILE, mode="a", newline="") as f:
         writer = csv.writer(f)
+        
+        # Update header to include new fields
         if not file_exists:
-            header = ["omr_file", "answer_key", "date"] + SUBJECTS + ["Overall", "Total"]
+            header = ["Date"] + SUBJECTS + ["Total Score", "Total Questions", "Student ID", "Version", "Flagged"]
             writer.writerow(header)
-
-        row = [
-            result["omr"], 
-            result["answer_key"], 
-            result["date"]
-        ] + [result["subjects"][s] for s in SUBJECTS] + [result["overall"], result["total"]]
+        
+        # Flatten row and add new fields at the end
+        row = [result["date"]]
+        row += [result["result"].get(subj, 0) for subj in SUBJECTS]
+        row += [result["total_score"], result["total_questions"]]
+        row += [student_id, version, flagged]
+        
         writer.writerow(row)

@@ -76,10 +76,9 @@
     <!-- Results -->
     {% if result %}
     <div class="mt-5">
-        <h4>Results for Student ID: {{ request.form.get('student_id') }}</h4>
-        {% for res in result %}
+        <h4>Results for Student ID: {{ student_id or 'N/A' }}</h4>
         <div class="mb-4">
-            <h5>OMR Sheet: {{ res['omr_file'] }}</h5>
+            <h5>OMR Sheet: {{ omr_file }}</h5>
             <table class="table table-bordered">
                 <thead>
                     <tr>
@@ -92,25 +91,29 @@
                     {% for subject in subjects %}
                     <tr>
                         <td>{{ subject }}</td>
-                        <td>{{ res[subject] }}</td>
-                        <td>20</td>
+                        <td>{{ result['result'].get(subject, 0) }}</td>
+                        <td>{{ total_per_subject or 20 }}</td> <!-- You can replace 20 with actual per-subject total -->
                     </tr>
                     {% endfor %}
                 </tbody>
                 <tfoot>
                     <tr class="table-info">
                         <td><b>Overall</b></td>
-                        <td><b>{{ res['Overall'] }}</b></td>
-                        <td><b>{{ res['Total'] }}</b></td>
+                        <td><b>{{ result['total_score'] }}</b></td>
+                        <td><b>{{ result['total_questions'] }}</b></td>
+                    </tr>
+                    <tr>
+                        <td><b>Version</b></td>
+                        <td colspan="2">{{ version or 'N/A' }}</td>
                     </tr>
                 </tfoot>
             </table>
+            {% if flagged %}
+            <div class="alert alert-warning">This sheet was flagged for manual review.</div>
+            {% endif %}
         </div>
-        {% if res['Flagged'] == 1 %}
-        <div class="alert alert-warning">This sheet was flagged for manual review.</div>
-        {% endif %}
-        {% endfor %}
     </div>
     {% endif %}
+
 </div>
 {% endblock %}

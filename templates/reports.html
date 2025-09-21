@@ -43,14 +43,12 @@
                 <tr>
                     <th>Student ID</th>
                     <th>Date</th>
-                    <th>OMR Sheet</th>
-                    <th>Answer Key</th>
                     <th>Version</th>
                     {% for subject in subjects %}
                     <th>{{ subject }}</th>
                     {% endfor %}
-                    <th>Overall</th>
-                    <th>Total</th>
+                    <th>Total Score</th>
+                    <th>Total Questions</th>
                     <th>Flagged</th>
                 </tr>
             </thead>
@@ -58,25 +56,25 @@
                 {% if reports %}
                 {% for r in reports %}
                 <tr>
-                    <td>{{ r.student_id }}</td>
-                    <td>{{ r.date }}</td>
-                    <td>{{ r.omr_file }}</td>
-                    <td>{{ r.answer_key }}</td>
-                    <td>{{ r.version }}</td>
+                    <td>{{ r.get('Student ID', '-') }}</td>
+                    <td>{{ r.get('Date', '-') }}</td>
+                    <td>{{ r.get('Version', '-') }}</td>
                     {% for subject in subjects %}
-                    <td>{{ r[subject] if r[subject] is defined else 0 }}</td>
+                    <td>{{ r.get(subject, 0) }}</td>
                     {% endfor %}
-                    <td>{{ r.Overall }}</td>
-                    <td>{{ r.Total }}</td>
-                    <td>{% if r.Flagged %}<span class="badge bg-warning">Flagged</span>{% else %}-{% endif %}</td>
+                    <td>{{ r.get('Total Score', 0) }}</td>
+                    <td>{{ r.get('Total Questions', 0) }}</td>
+                    <td>{% if r.get('Flagged', False) %}<span class="badge bg-warning">Flagged</span>{% else %}-{% endif
+                        %}</td>
                 </tr>
                 {% endfor %}
                 {% else %}
                 <tr>
-                    <td colspan="{{ 7 + subjects|length }}">No reports found.</td>
+                    <td colspan="{{ 5 + subjects|length }}">No reports found.</td>
                 </tr>
                 {% endif %}
             </tbody>
+
         </table>
     </div>
 

@@ -1,14 +1,2 @@
-student_id,omr_file,answer_key,date,version,Flagged,Evaluated,rectified_image,json_result,Math,English,Science,Social Studies,Tamil,Overall,Total
-,Img1.jpeg,Key.xlsx,2025-09-21 12:00:08,v1,0,1,,uploads\json_results\NA_Img1.jpeg_result.json,19,16,12,13,12,72,100
-,Img16.jpeg,Key.xlsx,2025-09-21 12:00:19,v1,0,1,,uploads\json_results\NA_Img16.jpeg_result.json,10,16,16,16,14,72,100
-,Img17.jpeg,Key.xlsx,2025-09-21 12:00:19,v1,0,1,,uploads\json_results\NA_Img17.jpeg_result.json,13,16,11,14,11,65,100
-,Img18.jpeg,Key.xlsx,2025-09-21 12:00:19,v1,0,1,,uploads\json_results\NA_Img18.jpeg_result.json,10,20,17,12,15,74,100
-,Img19.jpeg,Key.xlsx,2025-09-21 12:00:19,v1,0,1,,uploads\json_results\NA_Img19.jpeg_result.json,12,18,19,11,11,71,100
-,Img2.jpeg,Key.xlsx,2025-09-21 12:00:19,v1,0,1,,uploads\json_results\NA_Img2.jpeg_result.json,19,19,17,16,14,85,100
-,Img20.jpeg,Key.xlsx,2025-09-21 12:00:19,v1,0,1,,uploads\json_results\NA_Img20.jpeg_result.json,18,17,18,17,19,89,100
-,Img3.jpeg,Key.xlsx,2025-09-21 12:00:19,v1,0,1,,uploads\json_results\NA_Img3.jpeg_result.json,19,14,13,16,19,81,100
-,Img4.jpeg,Key.xlsx,2025-09-21 12:00:19,v1,0,1,,uploads\json_results\NA_Img4.jpeg_result.json,14,10,14,15,11,64,100
-,Img5.jpeg,Key.xlsx,2025-09-21 12:00:19,v1,0,1,,uploads\json_results\NA_Img5.jpeg_result.json,11,18,15,12,14,70,100
-,Img6.jpeg,Key.xlsx,2025-09-21 12:00:19,v1,0,1,,uploads\json_results\NA_Img6.jpeg_result.json,17,11,19,11,15,73,100
-,Img7.jpeg,Key.xlsx,2025-09-21 12:00:19,v1,0,1,,uploads\json_results\NA_Img7.jpeg_result.json,16,16,17,13,13,75,100
-,Img8.jpeg,Key.xlsx,2025-09-21 12:00:19,v1,0,1,,uploads\json_results\NA_Img8.jpeg_result.json,14,10,18,16,14,72,100
+Date,Python,EDA,SQL,POWER BI,Satistics,Total Score,Total Questions,Student ID,Version,Flagged
+2025-09-21 19:44:00,11,15,11,17,14,68,100,,v1,False

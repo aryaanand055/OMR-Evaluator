@@ -4,7 +4,8 @@ from io import BytesIO
 from datetime import datetime
 import pandas as pd
 from flask import Flask, render_template, request, redirect, url_for, flash, session
-from omr_utils import process_answer_key, process_omr_sheet, evaluate_results, SUBJECTS, REPORT_FILE
+from omr_utils import  evaluate_results, SUBJECTS, REPORT_FILE,save_evaluation
+from files import process_answer_key, process_omr_sheet
 
 app = Flask(__name__)
 app.secret_key = "secret123"
@@ -85,11 +86,13 @@ def home():
     )
 
 # --- Reports Route ---
+# --- Reports Route ---
 @app.route('/reports')
 @login_required
 def reports():
     df = pd.read_csv(REPORT_FILE) if os.path.isfile(REPORT_FILE) else pd.DataFrame()
 
+    # Filters
     filters = {
         "student_id": request.args.get("student_id", ""),
         "date": request.args.get("date", ""),
@@ -99,15 +102,20 @@ def reports():
 
     filtered_df = df.copy()
     if filters["student_id"]:
-        filtered_df = filtered_df[filtered_df["student_id"].astype(str).str.contains(filters["student_id"], case=False)]
+        filtered_df = filtered_df[
+            filtered_df["Student ID"].astype(str).str.contains(filters["student_id"], case=False, na=False)
+        ]
     if filters["date"]:
-        filtered_df = filtered_df[filtered_df["date"].astype(str).str.contains(filters["date"], case=False)]
+        filtered_df = filtered_df[
+            filtered_df["Date"].astype(str).str.contains(filters["date"], case=False, na=False)
+        ]
     if filters["version"]:
-        filtered_df = filtered_df[filtered_df["version"].astype(str) == filters["version"]]
+        filtered_df = filtered_df[filtered_df["Version"].astype(str) == filters["version"]]
     if filters["flagged"]:
-        flagged_val = 1 if filters["flagged"] == "1" else 0
+        flagged_val = True if filters["flagged"] == "1" else False
         filtered_df = filtered_df[filtered_df["Flagged"] == flagged_val]
 
+    # Export options
     export_type = request.args.get("export")
     if export_type == "csv":
         return filtered_df.to_csv(index=False), 200, {"Content-Type": "text/csv"}
@@ -118,11 +126,12 @@ def reports():
         output.seek(0)
         return output.read(), 200, {"Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}
 
+    # Prepare data for charts and template
     reports = filtered_df.to_dict("records")
-    labels = filtered_df["date"].tolist() if "date" in filtered_df.columns else []
+    labels = filtered_df["Date"].tolist() if "Date" in filtered_df.columns else []
     subject_scores = {s: filtered_df[s].tolist() if s in filtered_df.columns else [] for s in SUBJECTS}
-    overall_scores = filtered_df["Overall"].tolist() if "Overall" in filtered_df.columns else []
-    versions = filtered_df["version"].unique().tolist() if "version" in filtered_df.columns else []
+    overall_scores = filtered_df["Total Score"].tolist() if "Total Score" in filtered_df.columns else []
+    versions = filtered_df["Version"].unique().tolist() if "Version" in filtered_df.columns else []
 
     return render_template("reports.html",
         reports=reports,
@@ -137,6 +146,7 @@ def reports():
 # --- Evaluate Route ---
 @app.route('/evaluate', methods=['GET', 'POST'])
 @login_required
+
 def evaluate():
     existing_keys = os.listdir(ANSWER_FOLDER)
     existing_omr = os.listdir(OMR_FOLDER)
@@ -185,62 +195,12 @@ def evaluate():
                 flash("Please select both Answer Key and OMR Sheet.", "danger")
                 return redirect(url_for("evaluate"))
 
-            # Load existing CSV
-            if os.path.isfile(REPORT_FILE):
-                df = pd.read_csv(REPORT_FILE)
-            else:
-                df = pd.DataFrame()
-
-            rows = []
-
             for omr_file in selected_omr_list:
-                # Skip duplicates
-                if not df.empty:
-                    duplicate = df[(df["student_id"]==student_id) & (df["omr_file"]==omr_file)]
-                    if not duplicate.empty:
-                        flash(f"Skipped duplicate entry for {student_id} - {omr_file}", "warning")
-                        continue
-
-                res = evaluate_results(selected_key, omr_file)
-
-                # Save rectified image
-                rectified_path = os.path.join(RECTIFIED_FOLDER, f"{student_id or 'NA'}_{omr_file}_rectified.png")
-                if res.get('rectified_image'):
-                    with open(rectified_path, 'wb') as f:
-                        f.write(res['rectified_image'])
-
-                # Save JSON
-                json_path = os.path.join(JSON_FOLDER, f"{student_id or 'NA'}_{omr_file}_result.json")
-                with open(json_path, 'w') as f:
-                    json.dump(res, f, indent=2)
-
-                # Prepare CSV row
-                row = {
-                    "student_id": student_id or '',
-                    "omr_file": omr_file,
-                    "answer_key": selected_key,
-                    "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    "version": version,
-                    "Flagged": int(flagged),
-                    "Evaluated": 1,
-                    "rectified_image": rectified_path if res.get('rectified_image') else '',
-                    "json_result": json_path,
-                }
-                for s in SUBJECTS:
-                    row[s] = res["subjects"].get(s, 0)
-                row["Overall"] = res["overall"]
-                row["Total"] = res["total"]
-                rows.append(row)
-
-            # Append new rows to CSV
-            if rows:
-                df = pd.concat([df, pd.DataFrame(rows)], ignore_index=True) if not df.empty else pd.DataFrame(rows)
-                df.to_csv(REPORT_FILE, index=False)
-                flash(f"Evaluation saved for {len(rows)} sheet(s)!", "success")
-                result = rows  # Always pass as list
-            else:
-                flash("No new evaluations were added (duplicates skipped).", "warning")
-                result = None
+                marked_answers = process_omr_sheet(os.path.join(OMR_FOLDER, omr_file))
+                key_answers = process_answer_key(os.path.join(ANSWER_FOLDER, selected_key))
+                
+                result = evaluate_results(key_answers, marked_answers)
+                save_evaluation(result, student_id, version, flagged)
 
     return render_template("evaluate.html",
         existing_keys=existing_keys,
