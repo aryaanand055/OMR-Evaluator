@@ -12,7 +12,7 @@ app = Flask(__name__)
 app.secret_key = "secret123"
 
 # --- Simple Auth ---
-# --- Simple Auth Disabled ---
+
 def login_required(f):
     from functools import wraps
     @wraps(f)
@@ -26,13 +26,13 @@ def login_required(f):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == "POST":
-        # Always log in, regardless of input
+       
         session["logged_in"] = True
         session["username"] = request.form.get("username", "guest")
         flash("Login successful!", "success")
         return redirect(url_for("home"))
 
-    # Just show login form (user can press submit without typing anything)
+    
     return render_template("login.html")
 
 
