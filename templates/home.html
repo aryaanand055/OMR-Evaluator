@@ -1,50 +1,54 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="text-center mt-5">
-    <h1>Welcome to the OMR Scanner Dashboard</h1>
-    <p class="lead">Easily upload answer keys, scan OMR sheets, and evaluate exam results.</p>
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold">OMR Scanner Dashboard</h1>
+        <p class="text-muted fs-5">Upload answer keys, scan OMR sheets, and evaluate exam results with ease.</p>
+    </div>
 
-    <div class="row mt-4">
+    <!-- Summary Cards -->
+    <div class="row g-4 mb-5">
         <div class="col-md-3">
-            <div class="card shadow-sm p-3">
-                <h4>Total Answer Keys</h4>
-                <p class="display-6">{{ total_answer_keys }}</p>
+            <div class="card border-0 shadow-sm text-center p-4 h-100">
+                <h6 class="text-uppercase text-secondary">Total Answer Keys</h6>
+                <p class="display-6 fw-bold">{{ total_answer_keys }}</p>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card shadow-sm p-3">
-                <h4>Total OMR Sheets</h4>
-                <p class="display-6">{{ total_omr_sheets }}</p>
+            <div class="card border-0 shadow-sm text-center p-4 h-100">
+                <h6 class="text-uppercase text-secondary">Total OMR Sheets</h6>
+                <p class="display-6 fw-bold">{{ total_omr_sheets }}</p>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card shadow-sm p-3">
-                <h4>Sheets Evaluated</h4>
-                <p class="display-6">{{ sheets_evaluated }}</p>
+            <div class="card border-0 shadow-sm text-center p-4 h-100">
+                <h6 class="text-uppercase text-secondary">Sheets Evaluated</h6>
+                <p class="display-6 fw-bold">{{ sheets_evaluated }}</p>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card shadow-sm p-3">
-                <h4>Flagged for Review</h4>
-                <p class="display-6">{{ flagged_count }}</p>
+            <div class="card border-0 shadow-sm text-center p-4 h-100">
+                <h6 class="text-uppercase text-secondary">Flagged for Review</h6>
+                <p class="display-6 fw-bold text-danger">{{ flagged_count }}</p>
             </div>
         </div>
     </div>
 
-    <div class="row mt-4">
+    <!-- Scores Section -->
+    <div class="row g-4 mb-5">
         <div class="col-md-6">
-            <div class="card shadow-sm p-3">
-                <h4>Last Evaluation Score</h4>
-                <p class="display-6">{{ last_score if last_score else 'N/A' }}</p>
+            <div class="card border-0 shadow-sm p-4 h-100">
+                <h5 class="fw-semibold mb-3">Last Evaluation Score</h5>
+                <p class="display-5 fw-bold text-primary text-center">{{ last_score if last_score else 'N/A' }}</p>
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card shadow-sm p-3">
-                <h4>Average Scores per Subject</h4>
-                <ul class="list-group">
+            <div class="card border-0 shadow-sm p-4 h-100">
+                <h5 class="fw-semibold mb-3">Average Scores per Subject</h5>
+                <ul class="list-group list-group-flush">
                     {% for subject, avg in avg_scores.items() %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        {{ subject }}
+                    <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-2">
+                        <span>{{ subject }}</span>
                         <span class="badge bg-primary rounded-pill">{{ avg }}</span>
                     </li>
                     {% endfor %}
@@ -53,14 +57,15 @@
         </div>
     </div>
 
-    <div class="row mt-4">
-        <div class="col-md-12">
-            <div class="card shadow-sm p-3">
-                <h4>Top Performing Students</h4>
-                <ul class="list-group">
+    <!-- Top Students -->
+    <div class="row g-4 mb-5">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm p-4">
+                <h5 class="fw-semibold mb-3">Top Performing Students</h5>
+                <ul class="list-group list-group-flush">
                     {% for student in top_students %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        {{ student.student_id if student.student_id else 'N/A' }}
+                    <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-2">
+                        <span>{{ student.student_id if student.student_id else 'N/A' }}</span>
                         <span class="badge bg-success rounded-pill">{{ student.Overall }}</span>
                     </li>
                     {% endfor %}
@@ -69,14 +74,23 @@
         </div>
     </div>
 
-    <div class="row mt-4">
-        <div class="col-md-12">
-            <div class="d-flex justify-content-center gap-3">
-                <a href="{{ url_for('evaluate') }}" class="btn btn-primary btn-lg">Go to Evaluation</a>
-                <a href="{{ url_for('reports') }}" class="btn btn-secondary btn-lg">View Reports</a>
-                <a href="{{ url_for('evaluate') }}#upload-answer" class="btn btn-info btn-lg">Upload Answer Keys</a>
+    <!-- Action Buttons -->
+    <div class="row">
+        <div class="col-12 text-center">
+            <div class="d-flex justify-content-center flex-wrap gap-3">
+                <a href="{{ url_for('evaluate') }}" class="btn btn-primary btn-lg shadow-sm">Go to Evaluation</a>
+                <a href="{{ url_for('reports') }}" class="btn btn-outline-secondary btn-lg shadow-sm">View Reports</a>
+                <a href="{{ url_for('evaluate') }}#upload-answer"
+                    class="btn btn-info btn-lg shadow-sm text-white">Upload Answer Keys</a>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .card:hover {
+        transform: translateY(-4px);
+        transition: all 0.3s ease;
+    }
+</style>
 {% endblock %}

@@ -1,11 +1,13 @@
 # OMR Evaluator Platform
 
 ## Overview
+
 OMR Evaluator is a full-featured web application for scanning, evaluating, and reporting results from OMR (Optical Mark Recognition) sheets. Built with Flask, Bootstrap, pandas, and Chart.js, it provides a dashboard, bulk evaluation, reporting, authentication, and audit storage for educational institutions and exam centers.
 
 ---
 
 ## Features
+
 - **Dashboard**: View key stats, top students, and average scores per subject.
 - **Answer Key Upload**: Upload and manage answer keys for different exam versions.
 - **OMR Sheet Upload**: Upload individual or bulk OMR sheets for evaluation.
@@ -21,6 +23,7 @@ OMR Evaluator is a full-featured web application for scanning, evaluating, and r
 ---
 
 ## Project Structure
+
 ```
 Hackathon 24/
 ├── app.py                # Main Flask application
@@ -48,6 +51,7 @@ Hackathon 24/
 ---
 
 ## Installation & Setup
+
 1. **Clone the repository**
    ```sh
    git clone https://github.com/aryaanand055/OMR-Evaluator.git
@@ -67,6 +71,7 @@ Hackathon 24/
 ---
 
 ## Usage
+
 - **Login**: Use the default credentials (`admin:1234` or `evaluator:password123`).
 - **Dashboard**: View stats and quick links.
 - **Upload Answer Key**: Go to Evaluation > Upload New Answer Key.
@@ -79,6 +84,7 @@ Hackathon 24/
 ---
 
 ## Code Highlights
+
 - **app.py**: Flask routes for dashboard, evaluation, reports, authentication, file handling, and CSV/Excel export.
 - **omr_utils.py**: Core OMR evaluation logic, random score generation (placeholder), CSV writing.
 - **script.py**: OpenCV-based bubble detection and image processing (for advanced OMR extraction).
@@ -87,6 +93,7 @@ Hackathon 24/
 ---
 
 ## Customization
+
 - **Subjects**: Edit `SUBJECTS` in `omr_utils.py` to match your exam.
 - **Authentication**: Update `USERS` in `app.py` for more users.
 - **Styling**: Add custom CSS in `static/style.css`.
@@ -95,6 +102,7 @@ Hackathon 24/
 ---
 
 ## Example Workflow
+
 1. Login as evaluator.
 2. Upload answer key for the exam.
 3. Upload OMR sheets (single or bulk).
@@ -105,27 +113,32 @@ Hackathon 24/
 ---
 
 ## Screenshots
+
 > Add screenshots of dashboard, evaluation, and reports pages here.
 
 ---
 
 ## License
+
 This project is for educational and hackathon use. See [LICENSE](LICENSE) for details.
 
 ---
 
 ## Contributors
+
 - Arya Anand (@aryaanand055)
 - Hackathon 2024 Team
 
 ---
 
-## Issues & Support
+## Issues & Sup		port
+
 For bugs or feature requests, open an issue on GitHub.
 
 ---
 
 ## Acknowledgements
+
 - Flask
 - Bootstrap
 - pandas

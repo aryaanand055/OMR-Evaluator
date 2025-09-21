@@ -323,7 +323,7 @@ def process_with_fallback(image_path_original):
 
 
 if __name__ == "__main__":
-    image_file = "Img1.jpeg"
+    image_file = "Img8.jpeg"
     print(f"\n--- Processing {image_file} ---")
     answers = process_with_fallback(image_file)
     print("Final Answers:", answers)
