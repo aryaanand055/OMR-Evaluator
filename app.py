@@ -7,6 +7,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from omr_utils import  evaluate_results, SUBJECTS, REPORT_FILE,save_evaluation
 from files import *
 
+
 app = Flask(__name__)
 app.secret_key = "secret123"
 
@@ -96,7 +97,6 @@ def home():
     )
 
 # --- Reports Route ---
-# --- Reports Route ---
 @app.route('/reports')
 @login_required
 def reports():
@@ -181,7 +181,7 @@ def evaluate():
             return redirect(url_for("evaluate"))
 
         # Upload OMR sheets
-        if "bulk_omr" in request.files:
+        if "bulk_omr" in request.files and request.files.getlist("bulk_omr")[0].filename:
             files = request.files.getlist("bulk_omr")
             total, success = len(files), 0
             for file in files:
@@ -192,13 +192,16 @@ def evaluate():
             flash(f"Bulk upload complete: {success}/{total} sheets uploaded.", "success")
             return redirect(url_for("evaluate"))
 
+        # Upload single OMR sheet
         if "omr_file" in request.files and request.files["omr_file"].filename:
             file = request.files["omr_file"]
-            filepath = os.path.join(OMR_FOLDER, file.filename)
+            filename = file.filename
+            filepath = os.path.join(OMR_FOLDER, filename)
             file.save(filepath)
             process_omr_sheet(filepath)
-            flash("New OMR sheet uploaded!", "success")
+            flash(f"New OMR sheet '{filename}' uploaded!", "success")
             return redirect(url_for("evaluate"))
+
 
         # Evaluation
         if "evaluate" in request.form:
