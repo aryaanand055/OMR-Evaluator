@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Evaluate OMR Sheets</h2>
+
+    <!-- Upload Forms -->
+    <form method="POST" enctype="multipart/form-data" class="row g-3 mb-4">
+        <div class="col-md-3">
+            <label class="form-label">Upload New Answer Key</label>
+            <input type="file" name="answer_file" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Upload New OMR Sheet</label>
+            <input type="file" name="omr_file" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Bulk Upload OMR Sheets</label>
+            <input type="file" name="bulk_omr" class="form-control" multiple>
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">Upload</button>
+        </div>
+    </form>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{category}}">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <!-- Evaluation Form -->
+    <form method="POST" class="card p-4">
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label class="form-label">Student ID (optional)</label>
+                <input type="text" name="student_id" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Select Answer Key</label>
+                <select name="selected_key" class="form-select" required>
+                    <option value="">-- Select --</option>
+                    {% for key in existing_keys %}
+                    <option value="{{ key }}">{{ key }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Select OMR Sheet(s)</label>
+                <select name="selected_omr" class="form-select" multiple required>
+                    {% for omr in existing_omr %}
+                    <option value="{{ omr }}">{{ omr }}</option>
+                    {% endfor %}
+                </select>
+                <small class="text-muted">Hold Ctrl (Windows) or Cmd (Mac) to select multiple.</small>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Sheet Version</label>
+                <select name="version" class="form-select">
+                    {% for v in versions %}
+                    <option value="{{ v }}">{{ v }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="flagged" id="flagged">
+                    <label class="form-check-label" for="flagged">Flag</label>
+                </div>
+            </div>
+        </div>
+        <button type="submit" name="evaluate" value="1" class="btn btn-success w-100">Evaluate</button>
+    </form>
+
+    <!-- Results -->
+    {% if result %}
+    <div class="mt-5">
+        <h4>Results for Student ID: {{ request.form.get('student_id') }}</h4>
+        {% for res in result %}
+        <div class="mb-4">
+            <h5>OMR Sheet: {{ res['omr_file'] }}</h5>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Score</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for subject in subjects %}
+                    <tr>
+                        <td>{{ subject }}</td>
+                        <td>{{ res[subject] }}</td>
+                        <td>20</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="table-info">
+                        <td><b>Overall</b></td>
+                        <td><b>{{ res['Overall'] }}</b></td>
+                        <td><b>{{ res['Total'] }}</b></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        {% if res['Flagged'] == 1 %}
+        <div class="alert alert-warning">This sheet was flagged for manual review.</div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="text-center mt-5">
+    <h1>Welcome to the OMR Scanner Dashboard</h1>
+    <p class="lead">Easily upload answer keys, scan OMR sheets, and evaluate exam results.</p>
+
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm p-3">
+                <h4>Total Answer Keys</h4>
+                <p class="display-6">{{ total_answer_keys }}</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm p-3">
+                <h4>Total OMR Sheets</h4>
+                <p class="display-6">{{ total_omr_sheets }}</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm p-3">
+                <h4>Sheets Evaluated</h4>
+                <p class="display-6">{{ sheets_evaluated }}</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm p-3">
+                <h4>Flagged for Review</h4>
+                <p class="display-6">{{ flagged_count }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm p-3">
+                <h4>Last Evaluation Score</h4>
+                <p class="display-6">{{ last_score if last_score else 'N/A' }}</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm p-3">
+                <h4>Average Scores per Subject</h4>
+                <ul class="list-group">
+                    {% for subject, avg in avg_scores.items() %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ subject }}
+                        <span class="badge bg-primary rounded-pill">{{ avg }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm p-3">
+                <h4>Top Performing Students</h4>
+                <ul class="list-group">
+                    {% for student in top_students %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ student.student_id if student.student_id else 'N/A' }}
+                        <span class="badge bg-success rounded-pill">{{ student.Overall }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{{ url_for('evaluate') }}" class="btn btn-primary btn-lg">Go to Evaluation</a>
+                <a href="{{ url_for('reports') }}" class="btn btn-secondary btn-lg">View Reports</a>
+                <a href="{{ url_for('evaluate') }}#upload-answer" class="btn btn-info btn-lg">Upload Answer Keys</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

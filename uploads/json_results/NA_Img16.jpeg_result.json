@@ -1,0 +1,14 @@
+{
+  "omr": "Img16.jpeg",
+  "answer_key": "Key.xlsx",
+  "date": "2025-09-21 12:00:19",
+  "subjects": {
+    "Math": 10,
+    "English": 16,
+    "Science": 16,
+    "Social Studies": 16,
+    "Tamil": 14
+  },
+  "overall": 72,
+  "total": 100
+}

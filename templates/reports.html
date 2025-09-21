@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Reports</h2>
+
+    <!-- Filter Form -->
+    <form method="get" class="row g-3 mb-3">
+        <div class="col-md-2">
+            <input type="text" name="student_id" class="form-control" placeholder="Student ID"
+                value="{{ filters.student_id }}">
+        </div>
+        <div class="col-md-2">
+            <input type="text" name="date" class="form-control" placeholder="Date" value="{{ filters.date }}">
+        </div>
+        <div class="col-md-2">
+            <select name="version" class="form-select">
+                <option value="">Version</option>
+                {% for v in versions %}
+                <option value="{{ v }}" {% if filters.version==v %}selected{% endif %}>{{ v }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="flagged" class="form-select">
+                <option value="">Flagged?</option>
+                <option value="1" {% if filters.flagged=='1' %}selected{% endif %}>Yes</option>
+                <option value="0" {% if filters.flagged=='0' %}selected{% endif %}>No</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Filter</button>
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <a href="?export=csv" class="btn btn-outline-secondary w-100">Export CSV</a>
+            <a href="?export=excel" class="btn btn-outline-secondary w-100">Export Excel</a>
+        </div>
+    </form>
+
+    <!-- Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Student ID</th>
+                    <th>Date</th>
+                    <th>OMR Sheet</th>
+                    <th>Answer Key</th>
+                    <th>Version</th>
+                    {% for subject in subjects %}
+                    <th>{{ subject }}</th>
+                    {% endfor %}
+                    <th>Overall</th>
+                    <th>Total</th>
+                    <th>Flagged</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if reports %}
+                {% for r in reports %}
+                <tr>
+                    <td>{{ r.student_id }}</td>
+                    <td>{{ r.date }}</td>
+                    <td>{{ r.omr_file }}</td>
+                    <td>{{ r.answer_key }}</td>
+                    <td>{{ r.version }}</td>
+                    {% for subject in subjects %}
+                    <td>{{ r[subject] if r[subject] is defined else 0 }}</td>
+                    {% endfor %}
+                    <td>{{ r.Overall }}</td>
+                    <td>{{ r.Total }}</td>
+                    <td>{% if r.Flagged %}<span class="badge bg-warning">Flagged</span>{% else %}-{% endif %}</td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="{{ 7 + subjects|length }}">No reports found.</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Charts -->
+    <h4 class="mt-4">Graphs</h4>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card p-2 mb-2">
+                <h6 class="text-center">Score Distribution</h6>
+                <canvas id="scoreChart" style="max-height:200px;"></canvas>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-2 mb-2">
+                <h6 class="text-center">Recent Evaluations</h6>
+                <canvas id="recentChart" style="max-height:200px;"></canvas>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-2 mb-2">
+                <h6 class="text-center">Average Scores by Subject</h6>
+                <canvas id="avgChart" style="max-height:200px;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        {% for subject in subjects %}
+        <div class="col-md-4">
+            <div class="card p-2 mb-2">
+                <h6 class="text-center">{{ subject }} Score Distribution</h6>
+                <canvas id="{{ subject }}Chart" style="max-height:200px;"></canvas>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const subjects = {{ subjects| tojson }};
+    const reports = {{ reports| tojson }};
+
+    // Score Distribution (0-20 bins)
+    function getBins(scores) {
+        let bins = { "0-5": 0, "6-10": 0, "11-15": 0, "16-20": 0 };
+        scores.forEach(s => {
+            if (s <= 5) bins["0-5"]++;
+            else if (s <= 10) bins["6-10"]++;
+            else if (s <= 15) bins["11-15"]++;
+            else bins["16-20"]++;
+        });
+        return bins;
+    }
+
+    // Subject-wise distribution
+    subjects.forEach(subject => {
+        let scores = reports.map(r => r[subject] || 0);
+        let bins = getBins(scores);
+        new Chart(document.getElementById(subject + "Chart"), {
+            type: 'bar',
+            data: { labels: Object.keys(bins), datasets: [{ label: subject + ' Score', data: Object.values(bins), backgroundColor: 'rgba(54, 162, 235, 0.7)' }] },
+            options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        });
+    });
+
+    // Overall Score Distribution
+    let overallScores = reports.map(r => r.Overall || 0);
+    let overallBins = getBins(overallScores);
+    new Chart(document.getElementById('scoreChart'), {
+        type: 'bar',
+        data: { labels: Object.keys(overallBins), datasets: [{ label: 'Overall Score', data: Object.values(overallBins), backgroundColor: 'rgba(75,192,192,0.7)' }] },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    });
+
+    // Recent Evaluations
+    let recentLabels = reports.map(r => r.date);
+    new Chart(document.getElementById('recentChart'), {
+        type: 'line',
+        data: { labels: recentLabels, datasets: [{ label: 'Recent Scores', data: overallScores, fill: true, backgroundColor: 'rgba(75,192,192,0.3)', borderColor: 'rgba(75,192,192,1)', tension: 0.3 }] },
+        options: { responsive: true, scales: { y: { beginAtZero: true } } }
+    });
+
+    // Average Scores by Subject
+    let avgScores = subjects.map(s => {
+        let scores = reports.map(r => r[s] || 0);
+        return scores.length ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2) : 0;
+    });
+    new Chart(document.getElementById('avgChart'), {
+        type: 'bar',
+        data: { labels: subjects, datasets: [{ label: 'Average', data: avgScores, backgroundColor: 'rgba(153,102,255,0.7)' }] },
+        options: { responsive: true, scales: { y: { beginAtZero: true, max: 20 } } }
+    });
+</script>
+{% endblock %}
