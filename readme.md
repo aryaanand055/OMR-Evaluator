@@ -1,6 +1,3 @@
-Here’s a **revised, detailed README** for your OMR Evaluator platform, incorporating your hackathon problem statement and removing the audit storage section:
-
----
 
 # Automated OMR Evaluation & Scoring System
 
